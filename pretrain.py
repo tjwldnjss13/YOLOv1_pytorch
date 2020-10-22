@@ -24,6 +24,8 @@ if __name__ == '__main__':
     n_bbox = 1
 
     model = YOLOv1(n_class, n_bbox).to(device)
+    model.train = True
+    model.pretrain = True
 
     # Test sample
     # import cv2 as cv
