@@ -9,11 +9,12 @@ import matplotlib.pyplot as plt
 
 
 class COCODataset(data.Dataset):
-    def __init__(self, root, annotation, transforms=None, instance_seg=False):
+    def __init__(self, root, annotation, categorical=True, transforms=None, instance_seg=False):
         self.root = root
         self.annotation = annotation
         self.coco = COCO(annotation)
         self.ids = list(sorted(self.coco.imgs.keys()))
+        self.categorical = categorical
         self.transforms = transforms
         self.instance_seg = instance_seg
 
@@ -77,6 +78,18 @@ class COCODataset(data.Dataset):
 
     def __len__(self):
         return len(self.ids)
+
+
+def to_categorical(labels, n_label):
+    labels_cate = []
+    for label in labels:
+        temp = [0 for _ in range(n_label)]
+        temp[label] = 1
+        labels_cate.append(temp)
+
+    labels_cate = torch.Tensor(labels_cate)
+
+    return labels_cate
 
 
 def collate_fn(batch):
