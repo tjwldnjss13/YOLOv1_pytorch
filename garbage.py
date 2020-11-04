@@ -1,7 +1,7 @@
 import torch
 
-a = torch.Tensor([0, 1, 0, 0])
-b = torch.Tensor([1, 0, 0, 1])
 
-c =
-print(c)
+a = torch.Tensor([1, 2])
+# a = a.unsqueeze(0).unsqueeze(0)
+a = a.expand((3, 3, 3))
+print(a)

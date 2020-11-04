@@ -2,8 +2,22 @@ import torch
 import numpy as np
 
 
-def resize_pytorch(in_, out_size):
-    pass
+def make_batch(datas):
+    data_batch = datas[0].unsqueeze(0)
+    for i in range(1, len(datas)):
+        temp = datas[i].unsqueeze(0)
+        data_batch = torch.cat([data_batch, temp], dim=0)
+
+    return data_batch
+
+
+def make_annotation_batch(anns, ann_category):
+    ann_batch = anns[0][ann_category].unsqueeze(0)
+    for i in range(1, len(anns)):
+        temp = anns[i][ann_category].unsqueeze(0)
+        ann_batch = torch.cat([ann_batch, temp], dim=0)
+
+    return ann_batch
 
 
 def crop(in_, out_size):
@@ -55,26 +69,11 @@ def pad_2dim(x, ref_size):
 def calculate_ious(box1, box2):
     ious = np.zeros((box1.shape[0], box2.shape[0]), dtype=np.float32)
 
-    for i_1 in range(len(box1)):
-        b1 = box1[i_1]
-        b1_area = (b1[2] - b1[0]) * (b1[3] - b1[1])
-        for i_2 in range(len(box2)):
-            b2 = box2[i_2]
-            b2_area = (b2[2] - b2[0]) * (b2[3] - b2[1])
-
-            inter_y1 = max(b1[0], b2[0])
-            inter_x1 = max(b1[1], b2[1])
-            inter_y2 = min(b1[2], b1[2])
-            inter_x2 = min(b1[3], b1[3])
-
-            if inter_y1 < inter_y2 and inter_x1 < inter_x2:
-                inter_area = (inter_y2 - inter_y1) * (inter_x2 - inter_x1)
-                union_area = b1_area + b2_area - inter_area
-                iou = inter_area / union_area
-            else:
-                iou = 0
-
-            ious[i_1, i_2] = iou
+    for i, b1 in enumerate(box1):
+        b1 = box1[i]
+        for j, b2 in enumerate(box2):
+            b2 = box2[j]
+            ious[i, j] = calculate_iou(b1, b2)
 
     return ious
 
@@ -110,7 +109,23 @@ def mean_iou_segmentation(output, predict):
 
 
 def nms(anchor_boxes, ground_truth, score, iou_threshold):
+    n_gt = ground_truth.shape[0] if len(ground_truth.shape) > 1 else 1
+    anchor_boxes_nms = []
 
+    for i in range(n_gt):
+        anchor_boxes_cat = anchor_boxes[i]
+        ious_boxes_gts = calculate_ious(anchor_boxes_cat, np.array([ground_truth[i]]))
+        argmax_iou_boxes_gt = np.argmax(ious_boxes_gts, axis=0)
+        max_iou_box = anchor_boxes_cat[argmax_iou_boxes_gt][0]
+        anchor_boxes_nms.append(max_iou_box)
+        for j in range(anchor_boxes_cat.shape[0]):
+            if j == argmax_iou_boxes_gt:
+                continue
+            iou_temp = calculate_iou(max_iou_box, anchor_boxes_cat[j])
+            if iou_temp >= iou_threshold:
+                anchor_boxes_nms.append(anchor_boxes_cat[j])
+
+    return np.array(anchor_boxes_nms)
 
 
 def time_calculator(sec):
@@ -125,44 +140,4 @@ def time_calculator(sec):
     M = sec // 60
     S = sec % 60
     return int(H), int(M), S
-
-
-if __name__ == '__main__':
-
-    from rpn import anchor_box_generator, anchor_target_generator
-    import cv2 as cv
-    import matplotlib.pyplot as plt
-    import copy
-
-    ratios = [.5, 1, 2]
-    scales = [128, 256, 512]
-    anchor_boxes = anchor_box_generator(ratios, scales, (600, 1000), 16)
-
-    img_pth = 'samples/dogs.jpg'
-    img = cv.imread(img_pth)
-    img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
-    img_h_og, img_w_og, _ = img.shape
-    img = cv.resize(img, (1000, 600))
-
-    bbox = np.array([[120, 70, 570, 280], [220, 270, 580, 450], [30, 440, 570, 700]])
-    bbox[:, 0] = bbox[:, 0] * (600 / img_h_og)
-    bbox[:, 1] = bbox[:, 1] * (1000 / img_w_og)
-    bbox[:, 2] = bbox[:, 2] * (600 / img_h_og)
-    bbox[:, 3] = bbox[:, 3] * (1000 / img_w_og)
-
-    img_copy = copy.deepcopy(img)
-
-    for i, box in enumerate(anchor_boxes):
-        y1, x1, y2, x2 = int(box[0]), int(box[1]), int(box[2]), int(box[3])
-        cv.rectangle(img_copy, (x1, y1), (x2, y2), (0, 0, 255), 3)
-
-    # plt.figure(figsize=(15, 9))
-    # plt.imshow(img_copy)
-    # plt.show()
-
-    # rpn = RPN(512, 256, (60, 40), 9).cuda()
-    # from torchsummary import summary
-    # summary(rpn, (512, 60, 40))
-
-    anchor_labels = anchor_target_generator(anchor_boxes, bbox, .7, .3)
 

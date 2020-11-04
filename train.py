@@ -1,13 +1,9 @@
-import os
 import torch
 import torch.optim as optim
 import torchvision.transforms as transforms
-from torch.utils.data import DataLoader
 
 from model import YOLOv1, target_generator
-from coco_dataset import COCODataset, collate_fn
 from loss import yolo_custom_loss
-from torchsummary import summary
 
 if not torch.cuda.is_available():
     import os

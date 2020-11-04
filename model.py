@@ -36,7 +36,6 @@ class YOLOv1(nn.Module):
         self.fc1 = nn.Linear(7 * 7 * 1024, 4096)
         self.fc2 = nn.Linear(4096, 7 * 7 * (5 * self.n_bbox + self.n_class))
 
-
     def forward(self, x):
         x = self.conv1_train(x) if self.train else self.conv1_detect(x)
         x = self.leakyRelu(x)
@@ -124,12 +123,12 @@ def target_generator(bbox, class_, n_bbox, n_class, in_size, out_size):
 
 
 if __name__ == '__main__':
-    import torch
-    from torchsummary import summary
-    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-    model = YOLOv1(20, 1).to(device)
-    model.pretrain = False
-    summary(model, (3, 224, 224))
-    dummy = torch.zeros((1, 3, 224, 224)).to(device)
-    out_ = model(dummy)
-    print(out_.shape)
+    bbox = torch.Tensor([[1, 2, 3, 4]])
+    class_ = torch.Tensor([10])
+    n_bbox = 1
+    n_class = 1
+    in_size = (224, 224)
+    out_size = (7, 7)
+
+    target = target_generator(bbox, class_, n_bbox, n_class, in_size, out_size)
+    print(target.shape)
