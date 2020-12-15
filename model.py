@@ -87,6 +87,9 @@ class YOLOv1(nn.Module):
             x = x.contiguous().view(x.size(0), 7, 7, -1)
 
             x = self.lrelu(x)
+            # bbox 좌표 부분은 0~1로 normalize 해야 함
+
+
             # for i in range(self.n_bbox):
             #     x[:, :, :, 5 * i:5 * i + 4] = self.relu(x[:, :, :, 5 * i:5 * i + 4])
             #     x[:, :, :, 5 * i + 4] = self.lrelu(x[:, :, :, 5 * i + 4])

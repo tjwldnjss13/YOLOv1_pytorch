@@ -77,8 +77,8 @@ class VOCDataset(data.Dataset):
 
                 class_ = self.class_dict[name] if name in self.class_dict.keys() else 0
                 if self.is_categorical:
-                    class_ = self.to_categorical(class_, 20)
-                bbox = [xmin, ymin, xmax, ymax]
+                    class_ = self.to_categorical(class_, 21)
+                bbox = [ymin, xmin, ymax, xmax]
 
                 classes.append(class_)
                 bboxes.append(bbox)

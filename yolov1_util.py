@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 
 
 def generate_target_batch(annotation, n_bbox_predict, n_class, in_size, out_size):
@@ -75,3 +76,27 @@ def make_batch(data_list):
         data_batch = torch.cat([data_batch, temp], dim=0)
 
     return data_batch
+
+
+def calculate_precision(output, ground_truths):
+    n_batch = output.shape[0]
+
+
+
+
+def calculate_iou(box1, box2):
+    area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
+    area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
+
+    y1 = np.maximum(box1[0], box2[0])
+    x1 = np.maximum(box1[1], box2[1])
+    y2 = np.minimum(box1[2], box2[2])
+    x2 = np.minimum(box1[3], box2[3])
+
+    iou = 0
+    if y1 < y2 and x1 < x2:
+        inter = (y2 - y1) * (x2 - x1)
+        union = area1 + area2 - inter
+        iou = inter / union
+
+    return iou
