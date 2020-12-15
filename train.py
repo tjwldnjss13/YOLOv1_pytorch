@@ -1,9 +1,19 @@
+is_debugging = False
+
+import os
+import time
 import torch
 import torch.optim as optim
 import torchvision.transforms as transforms
+from torch.utils.data import DataLoader
+import matplotlib.pyplot as plt
 
-from model import YOLOv1, target_generator
+from model import YOLOv1
+# from dataset.coco_dataset import COCODataset, collate_fn
+from dataset.voc_dataset import VOCDataset, collate_fn
+from utils import make_batch, make_annotation_batch, time_calculator
 from loss import yolo_custom_loss
+from yolov1_util import generate_target_batch
 
 if not torch.cuda.is_available():
     import os
@@ -13,65 +23,131 @@ device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 
 if __name__ == '__main__':
-    lr = .0001
-    batch_size = 64
-    num_epoch = 10
-    n_class = 2
-    n_bbox = 1
+    lr = .005
+    batch_size = 16
+    num_epoch = 20
+    n_class = 21
+    n_bbox = 2
+    model_save_term = 2
 
     model = YOLOv1(n_class, n_bbox).to(device)
+    model.train = True
+    model.pretrain = False
 
-    # Test sample
-    import numpy as np
-    import cv2 as cv
-    import copy
-    from PIL import Image
-
-    # image = cv.imread('samples/pomeranian.jpg')
-    # image = cv.resize(image, (224, 224))
-    # image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
-    # image = torch.Tensor(image).unsqueeze(0).to(device)
-    # image = image.permute((0, 3, 1, 2))
-
-    image = Image.open('samples/pomeranian.jpg').convert('RGB')
-    image_ = np.array(copy.deepcopy(image))
-    image = transforms.Compose([transforms.Resize(224), transforms.ToTensor()])(image)
-    image = image.to(device)
-    bbox = np.array([79, 191, 493, 602])
-    if len(bbox.shape) == 1:
-        bbox = np.array([bbox])
-    label = np.array([1])
-
-    bbox = torch.Tensor(bbox).to(device)
-    label = torch.LongTensor(label).to(device)
-    target = target_generator(bbox, label, 1, 2, (224, 224), (7, 7))
-
-    import matplotlib.pyplot as plt
-    for b in range(len(bbox)):
-        image = cv.rectangle(image_, (bbox[b, 1], bbox[b, 0]), (bbox[b, 3], bbox[b, 2]), (0, 0, 255), thickness=5)
-    plt.imshow(image_)
-    # plt.show()
-
-    # Real training with COCO dataset
+    #################### COCO Dataset ####################
     # root = ''
     # root_train = os.path.join(root, 'images', 'train')
     # root_val = os.path.join(root, 'images', 'val')
     # ann_train = os.path.join(root, 'annotations', 'instances_train2017.json')
     # ann_val = os.path.join(root, 'annotations', 'instances_val2017.json')
     #
-    # dset_train = COCODataset(root_train, ann_train, transforms.Compose([transforms.ToTensor(), transforms.Resize((224, 224))]))
+    # dset_train = COCODataset(root_train, ann_train, transforms.Compose([transforms.ToTensor()]))
     # dset_val = COCODataset(root_val, ann_val, transforms.Compose([transforms.ToTensor()]))
-    #
-    # train_data_loader = DataLoader(dset_train, batch_size, shuffle=True, collate_fn=collate_fn)
-    # val_data_loader = DataLoader(dset_val, batch_size, shuffle=True, collate_fn=collate_fn)
 
-    optimizer = optim.Adam(model.parameters(), lr)
+    #################### VOC Dataset ####################
+    root = 'C://DeepLearningData/VOC2012/'
+    transforms = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor()])
+
+    dset_train = VOCDataset(root, img_size=(224, 224), is_validation=False, transforms=transforms, is_categorical=False)
+    dset_val = VOCDataset(root, img_size=(224, 224), is_validation=True, transforms=transforms, is_categorical=False)
+
+    train_data_loader = DataLoader(dset_train, batch_size, shuffle=True, collate_fn=collate_fn)
+    val_data_loader = DataLoader(dset_val, batch_size, shuffle=True, collate_fn=collate_fn)
+
+    n_train_data = len(dset_train)
+    n_val_data = len(dset_val)
+
+    optimizer = optim.SGD(model.parameters(), lr)
     loss_func = yolo_custom_loss
 
+    train_losses = []
+    train_accs = []
+    val_losses = []
+    val_accs = []
+    t_start = time.time()
     for e in range(num_epoch):
-        output = model(image)
-        loss = yolo_custom_loss(output, target, bbox.shape[0], 5, .5)
-        print(loss)
+        n_images = 0
+        n_batch = 0
+        train_loss = 0
+        train_acc = 0
+        for i, (images, anns) in enumerate(train_data_loader):
+            mini_batch = len(images)
+            n_images += mini_batch
+            n_batch += 1
+            print('[{}/{}] {}/{} '.format(e + 1, num_epoch, n_images, n_train_data), end='')
+
+            x_ = make_batch(images).to(device)
+            # y_ = make_annotation_batch(anns, 'bbox').to(device)
+            y_ = generate_target_batch(anns, 2, n_class, (224, 224), (7, 7)).to(device)
+
+            output = model(x_)
+
+            optimizer.zero_grad()
+            loss = loss_func(output, y_, n_bbox, 5, .5)
+            acc = (output.argmax(dim=1) == y_.argmax(dim=1)).sum()
+            loss.backward()
+            optimizer.step()
+
+            train_loss += loss.item()
+            train_acc += acc.item()
+
+            print('<loss> {} <acc> {}'.format(loss.item(), acc.item() / mini_batch))
+
+            if is_debugging:
+                break
+
+        if is_debugging:
+            break
+
+        train_losses.append(train_loss / n_batch)
+        train_accs.append(train_acc / n_train_data)
+
+        print('    <train_loss> {} <train_acc> {} '.format(train_losses[-1], train_accs[-1]), end='')
+
+        val_loss = 0
+        val_acc = 0
+        n_images = 0
+        for i, (images, anns) in enumerate(val_data_loader):
+            mini_batch = len(images)
+            n_batch += 1
+            x_ = make_batch(images).to(device)
+            # y_ = make_annotation_batch(anns, 'label').to(device)
+            y_ = generate_target_batch(anns, (224, 224), (7, 7)).to(device)
+
+            output = model(x_)
+
+            loss = loss_func(output, y_)
+            acc = (output.argmax(dim=1) == y_.argmax(dim=1)).sum()
+
+            val_loss += loss.item()
+            val_acc += acc.item()
+
+        val_losses.append(val_loss / n_batch)
+        val_accs.append(val_acc / n_val_data)
+
+        print('<val_loss> {} <val_acc> {}'.format(val_losses[-1], val_accs[-1]))
+
+        if (e + 1) % model_save_term == 0:
+            PATH = 'saved models/yolov1_{}lr_{}epoch_{:.5f}loss_{:.5f}acc.pth'.format(lr, e + 1, val_losses[-1], val_accs[-1])
+            torch.save(model, PATH)
+
+    t_end = time.time()
+
+    if not is_debugging:
+        H, M, S = time_calculator(t_end - t_start)
+        print('Train time : {}H {}M {:.2f}S'.format(H, M, S))
+
+        plt.figure(1)
+        plt.title('Train/Validation Loss')
+        plt.plot([i for i in range(num_epoch)], train_losses, 'r-', label='train')
+        plt.plot([i for i in range(num_epoch)], val_losses, 'b-', label='val')
+        plt.legend()
+
+        plt.figure(2)
+        plt.title('Train/Validation Accuracy')
+        plt.plot([i for i in range(num_epoch)], train_accs, 'r-', label='train')
+        plt.plot([i for i in range(num_epoch)], val_accs, 'b-', label='val')
+        plt.legend()
+        plt.show()
 
 
-        break

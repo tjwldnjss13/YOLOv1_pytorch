@@ -1,43 +1,77 @@
 import torch
 
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
+def generate_target_batch(annotation, n_bbox_predict, n_class, in_size, out_size):
+    n_ann = len(annotation)
+
+    target_tensors = []
+    for i in range(n_ann):
+        ann = annotation[i]
+        classes, bboxes = ann['class'], ann['bbox']
+
+        target_tensor = make_target_tensor(bboxes, classes, n_bbox_predict, n_class, in_size, out_size)
+        target_tensors.append(target_tensor)
+
+    target_batch = make_batch(target_tensors)
+
+    return target_batch
 
 
-def yolo_pretrain_target_generator(labels):
-    pass
-
-
-def target_generator(bbox, class_, n_bbox, n_class, in_size, out_size):
+def make_target_tensor(bboxes, classes, n_bbox_predict, n_class, in_size, out_size):
+    n_gt = len(bboxes)
     in_h, in_w = in_size[0], in_size[1]
     out_h, out_w = out_size[0], out_size[1]
-    bbox_h, bbox_w = bbox[:, 2] - bbox[:, 0], bbox[:, 3] - bbox[:, 1]
-    bbox_y, bbox_x = bbox[:, 0] + .5 * bbox_h, bbox[:, 1] + .5 * bbox_w
+    # hs, ws = bboxes[:, 2] - bboxes[:, 0], bboxes[:, 3] - bboxes[:, 1]
+    # ys, xs = bboxes[:, 0] + .5 * hs, bboxes[:, 1] + .5 * ws
 
-    objs = torch.zeros(out_size, dtype=torch.long).to(device)
     ratio = out_h / in_h
-    bbox_y1_warp, bbox_x1_warp = torch.floor(bbox[:, 0] * ratio).int(), torch.floor(bbox[:, 1] * ratio).int()
-    bbox_y2_warp, bbox_x2_warp = torch.ceil(bbox[:, 2] * ratio).int(), torch.ceil(bbox[:, 3] * ratio).int()
-    bbox_h_warp = bbox_y2_warp - bbox_y1_warp
-    bbox_w_warp = bbox_x2_warp - bbox_x1_warp
+    # bbox_y1_warp, bbox_x1_warp = torch.floor(bbox[:, 0] * ratio).int(), torch.floor(bbox[:, 1] * ratio).int()
+    # bbox_y2_warp, bbox_x2_warp = torch.ceil(bbox[:, 2] * ratio).int(), torch.ceil(bbox[:, 3] * ratio).int()
+    # ys, xs = ys * ratio, xs * ratio
+    # ys_floor, xs_floor = ys.floor().long(), xs.floor().long()
+    # hs, ws = hs / in_h, ws / in_w
 
-    for i in range(n_bbox):
-        objs[bbox_y1_warp[i]:bbox_y2_warp[i] + 1, bbox_x1_warp[i]:bbox_x2_warp[i] + 1] = torch.ones((bbox_h_warp, bbox_w_warp))
+    target = torch.zeros((out_h, out_w, 5 * n_bbox_predict + n_class))
+    target[:, :, 5 * n_bbox_predict] = 1
 
-    target = torch.zeros((out_h, out_w, 5 * n_bbox + n_class)).to(device)
-    target[:, :, 5 * n_bbox] = torch.ones(out_size)
-    for i in range(n_bbox):
-        # for m in range(bbox_y1_warp[i], bbox_y2_warp[i] + 1):
-        #     for n in range(bbox_x1_warp[i], bbox_x2_warp[i] + 1):
-        #         target[m, n, 5 * i:5 * i + 4] = torch.Tensor([bbox_y[i], bbox_x[i], bbox_h[i], bbox_w[i]])
-        #         target[m, n, 5 * i + 4] = objs
-        target[bbox_y1_warp[i]:bbox_y2_warp[i] + 1, bbox_x1_warp[i]:bbox_x2_warp[i] + 1, 5 * i:5 * i + 4] = \
-            torch.Tensor([bbox_y[i], bbox_x[i] ,bbox_h[i], bbox_w[i]]).expand((bbox_h_warp, bbox_w_warp, 4))
-        for j in range(4):
-            target[:, :, 5 * i + j] *= objs
+    for i in range(n_gt):
+        bbox = bboxes[i]
+        # y, x = ys[i], xs[i]
+        # h, w = hs[i], ws[i]
+        h, w = (bbox[2] - bbox[0]) / in_h, (bbox[3] - bbox[1]) / in_w
+        y, x = (bbox[0] + .5 * h) * ratio, (bbox[1] + .5 * w) * ratio
 
-    for y_ in range(out_h):
-        for x_ in range(out_w):
-            for c in class_:
-                target[y_, x_, 5 * n_bbox + c * objs[y_, x_]] = 1
+        y_cell_idx, x_cell_idx = int(y), int(x)
+        y_cell, x_cell = y - int(y), x - int(x)
+        class_ = classes[i]
+
+        for j in range(2):
+            target[y_cell_idx, x_cell_idx, 5 * j] = x_cell
+            target[y_cell_idx, x_cell_idx, 5 * j + 1] = y_cell
+            target[y_cell_idx, x_cell_idx, 5 * j + 2] = w
+            target[y_cell_idx, x_cell_idx, 5 * j + 3] = h
+            target[y_cell_idx, x_cell_idx, 5 * j + 4] = 1
+
+        target[y_cell_idx, x_cell_idx, 5 * n_bbox_predict + class_] = 1
+        target[y_cell_idx, x_cell_idx, 5 * n_bbox_predict] = 0
+
+
+    # target[:, :, 5 * n_bbox] = torch.ones(out_size)
+    # for i in range(n_bbox):
+    #     target[bbox_y1_warp[i]:bbox_y2_warp[i] + 1, bbox_x1_warp[i]:bbox_x2_warp[i] + 1, 5 * i:5 * i + 4] = \
+    #         torch.Tensor([bbox_y[i], bbox_x[i] ,bbox_h[i], bbox_w[i]]).expand((bbox_h_warp, bbox_w_warp, 4))
+    #     target[bbox_y1_warp[i]:bbox_y2_warp[i] + 1, bbox_x1_warp[i]:bbox_x2_warp[i] + 1, 5 * i + 4] = torch.ones((bbox_h_warp[i], bbox_w_warp[i]))
+    #     target[bbox_y1_warp[i]:bbox_y2_warp[i] + 1, bbox_x1_warp[i]:bbox_x2_warp[i] + 1, 5 * n_bbox + class_.item() - 1] = torch.ones((bbox_h_warp[i], bbox_w_warp[i]))
 
     return target
+
+
+def make_batch(data_list):
+    n_data = len(data_list)
+    data_batch = data_list[0].unsqueeze(0)
+
+    for i in range(1, n_data):
+        temp = data_list[i].unsqueeze(0)
+        data_batch = torch.cat([data_batch, temp], dim=0)
+
+    return data_batch
