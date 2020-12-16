@@ -44,6 +44,8 @@ def yolo_custom_loss(predict, target, n_bbox, lambda_coord, lambda_noobj):
 
     loss = coord_loss + obj_loss + class_loss
 
+    print(coord_loss, obj_loss, class_loss)
+
     return loss
 
 

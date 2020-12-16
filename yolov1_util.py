@@ -78,10 +78,20 @@ def make_batch(data_list):
     return data_batch
 
 
-def calculate_precision(output, ground_truths):
+def mean_average_precision(output, ground_truths):
     n_batch = output.shape[0]
 
 
+def calculate_average_precision():
+    pass
+
+
+def calculate_precision(n_true_positive, n_false_positive):
+    return n_true_positive / (n_true_positive + n_false_positive)
+
+
+def calculate_recall(n_true_positive, n_false_negative):
+    return n_true_positive / (n_true_positive + n_false_negative)
 
 
 def calculate_iou(box1, box2):

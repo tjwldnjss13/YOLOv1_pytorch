@@ -21,8 +21,7 @@
   <component name="ChangeListManager">
     <list default="true" id="72bd9e0b-9676-449a-89fc-d0961712bc5b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/voc_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset/voc_dataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/loss.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yolov1_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/yolov1_util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -194,14 +193,14 @@
       <item itemvalue="Python.garbage" />
       <item itemvalue="Python.pretrain" />
       <item itemvalue="Python.train" />
-      <item itemvalue="Python.yolov1_util" />
       <item itemvalue="Python.voc_dataset" />
+      <item itemvalue="Python.yolov1_util" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.train" />
-        <item itemvalue="Python.voc_dataset" />
         <item itemvalue="Python.yolov1_util" />
+        <item itemvalue="Python.voc_dataset" />
         <item itemvalue="Python.garbage" />
         <item itemvalue="Python.pretrain" />
       </list>
@@ -267,22 +266,22 @@
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="1060" y="455" key="FileChooserDialogImpl/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1605159263520" />
-    <state width="2539" height="465" key="GridCell.Tab.0.bottom" timestamp="1608019823339">
+    <state width="2539" height="465" key="GridCell.Tab.0.bottom" timestamp="1608106084668">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state width="2539" height="465" key="GridCell.Tab.0.bottom/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1608019823339" />
-    <state width="2539" height="465" key="GridCell.Tab.0.center" timestamp="1608019823338">
+    <state width="2539" height="465" key="GridCell.Tab.0.bottom/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1608106084668" />
+    <state width="2539" height="465" key="GridCell.Tab.0.center" timestamp="1608106084667">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state width="2539" height="465" key="GridCell.Tab.0.center/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1608019823338" />
-    <state width="2539" height="465" key="GridCell.Tab.0.left" timestamp="1608019823338">
+    <state width="2539" height="465" key="GridCell.Tab.0.center/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1608106084667" />
+    <state width="2539" height="465" key="GridCell.Tab.0.left" timestamp="1608106084667">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state width="2539" height="465" key="GridCell.Tab.0.left/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1608019823338" />
-    <state width="2539" height="465" key="GridCell.Tab.0.right" timestamp="1608019823338">
+    <state width="2539" height="465" key="GridCell.Tab.0.left/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1608106084667" />
+    <state width="2539" height="465" key="GridCell.Tab.0.right" timestamp="1608106084667">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state width="2539" height="465" key="GridCell.Tab.0.right/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1608019823338" />
+    <state width="2539" height="465" key="GridCell.Tab.0.right/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1608106084667" />
     <state x="781" y="344" key="SettingsEditor" timestamp="1604544433388">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
