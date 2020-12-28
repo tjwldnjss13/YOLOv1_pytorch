@@ -1,6 +1,8 @@
 import torch
 import numpy as np
 
+from utils import make_batch
+
 
 def generate_target_batch(annotation, n_bbox_predict, n_class, in_size, out_size):
     n_ann = len(annotation)
@@ -8,7 +10,7 @@ def generate_target_batch(annotation, n_bbox_predict, n_class, in_size, out_size
     target_tensors = []
     for i in range(n_ann):
         ann = annotation[i]
-        classes, bboxes = ann['class'], ann['bbox']
+        classes, bboxes, filename = ann['class'], ann['bbox'], ann['filename']
 
         target_tensor = make_target_tensor(bboxes, classes, n_bbox_predict, n_class, in_size, out_size)
         target_tensors.append(target_tensor)
@@ -67,15 +69,57 @@ def make_target_tensor(bboxes, classes, n_bbox_predict, n_class, in_size, out_si
     return target
 
 
-def make_batch(data_list):
-    n_data = len(data_list)
-    data_batch = data_list[0].unsqueeze(0)
+def get_infos_from_output(image, output):
+    # Inputs:
+    #    image: PIL Image
+    #    output: (7, 7, 31) tensor
+    # Outputs:
+    #    box_dict
+    #    prob_dict
 
-    for i in range(1, n_data):
-        temp = data_list[i].unsqueeze(0)
-        data_batch = torch.cat([data_batch, temp], dim=0)
+    img = np.array(image)
 
-    return data_batch
+    h_img, w_img, _ = img.shape
+    h_img_grid, w_img_grid = int(h_img / 7), int(w_img / 7)
+
+    box_dict = {}
+    prob_dict = {}
+
+    for i in range(7):
+        for j in range(7):
+            cls = torch.argmax(output[i, j, 10:])
+
+            # Background는 무시
+            if cls > 0:
+                boxes = []
+                probs = []
+
+                for b in range(2):
+                    box_cell = output[i, j]
+
+                    x = (i + box_cell[5 * b].item()) * w_img_grid
+                    y = (j + box_cell[5 * b + 1].item()) * h_img_grid
+                    w = output[i, j, 5 * b + 2].item() * w_img
+                    h = box_cell[5 * b + 3].item() * h_img
+
+                    x_min = int(x - .5 * w)
+                    y_min = int(y - .5 * h)
+                    x_max = int(x + .5 * w)
+                    y_max = int(y + .5 * h)
+
+                    box = [y_min, x_min, y_max, x_max]
+                    boxes.append(box)
+
+                    probs.append(box_cell[b + 4].item())
+
+                if cls not in box_dict:
+                    box_dict[cls] = boxes
+                    prob_dict[cls] = probs
+                else:
+                    box_dict[cls] += boxes
+                    prob_dict[cls] += probs
+
+    return box_dict, prob_dict
 
 
 def mean_average_precision(output, ground_truths):
@@ -110,3 +154,4 @@ def calculate_iou(box1, box2):
         iou = inter / union
 
     return iou
+

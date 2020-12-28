@@ -11,7 +11,7 @@ def yolo_pretrain_custom_loss(predict, target):
     return loss
 
 
-def yolo_custom_loss(predict, target, n_bbox, lambda_coord, lambda_noobj):
+def yolo_custom_loss(predict, target, n_bbox_predict, lambda_coord=5, lambda_noobj=.5):
     coord_losses = torch.zeros(target.shape[1:3]).to(device)
     obj_losses = torch.zeros(target.shape[1:3]).to(device)
     class_losses = torch.zeros(target.shape[1:3]).to(device)
@@ -19,7 +19,7 @@ def yolo_custom_loss(predict, target, n_bbox, lambda_coord, lambda_noobj):
     n_batch = predict.shape[0]
     for b in range(n_batch):
         is_obj_global = torch.zeros(target.shape[1:3]).to(device)
-        for i in range(n_bbox):
+        for i in range(n_bbox_predict):
             coord_losses += torch.square(predict[b, :, :, 5 * i] - target[b, :, :, 5 * i])
             coord_losses += torch.square(predict[b, :, :, 5 * i + 1] - target[b, :, :, 5 * i + 1])
             coord_losses += torch.square(torch.sqrt(predict[b, :, :, 5 * i + 2]) - torch.sqrt(target[b, :, :, 5 * i + 2]))
@@ -34,7 +34,7 @@ def yolo_custom_loss(predict, target, n_bbox, lambda_coord, lambda_noobj):
         if b == 0:
             is_obj_global /= n_batch
 
-        class_losses_temp = torch.square(predict[b, :, :, 5 * n_bbox:] - target[b, :, :, 5 * n_bbox:])
+        class_losses_temp = torch.square(predict[b, :, :, 5 * n_bbox_predict:] - target[b, :, :, 5 * n_bbox_predict:])
         class_losses_temp = class_losses_temp.sum(dim=2)
         class_losses += class_losses_temp * is_obj_global
 
@@ -44,7 +44,7 @@ def yolo_custom_loss(predict, target, n_bbox, lambda_coord, lambda_noobj):
 
     loss = coord_loss + obj_loss + class_loss
 
-    print(coord_loss, obj_loss, class_loss)
+    # print(coord_loss.item(), obj_loss.item(), class_loss.item(), end=' ')
 
     return loss
 

@@ -79,6 +79,8 @@ def calculate_ious(box1, box2):
 
 
 def calculate_iou(box1, box2):
+    # Inputs:
+    #    box: [y1, x1, y2, x2]
     area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
     area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
 
@@ -108,7 +110,35 @@ def mean_iou_segmentation(output, predict):
     return iou
 
 
-def nms(anchor_boxes, ground_truth, score, iou_threshold):
+def nms(boxes, probs, threshold):
+    # Inputs:
+    #    boxes: [[y1, x1, y2, x2]]
+
+    nms_list = list()
+
+    box_prob_tuple = list(zip(boxes, probs))
+
+    def prob(t):
+        return t[1]
+
+    box_prob_tuple.sort(key=prob, reverse=True)
+    base = box_prob_tuple.pop(0)
+    box_base, prob_base = base[0], base[1]
+
+    nms_list.append(base)
+
+    for i, t in enumerate(box_prob_tuple):
+        box, prob = t[0], t[1]
+        iou = calculate_iou(box_base, box)
+
+        if iou < threshold:
+            nms_list.append(t)
+
+    return nms_list
+
+
+
+def nms_ground_truth(anchor_boxes, ground_truth, score, iou_threshold):
     n_gt = ground_truth.shape[0] if len(ground_truth.shape) > 1 else 1
     anchor_boxes_nms = []
 

@@ -86,7 +86,7 @@ class VOCDataset(data.Dataset):
             # label = torch.as_tensor(label, dtype=torch.int64)
             # bbox = torch.as_tensor(bbox, dtype=torch.float32)
 
-            ann = {'class': classes, 'bbox': bboxes}
+            ann = {'class': classes, 'bbox': bboxes, 'filename': img_fn}
 
             return img, ann
 
@@ -99,10 +99,13 @@ class VOCDataset(data.Dataset):
     def make_ann_list(self):
         print('Loading annotations...')
         ann_dir = os.path.join(self.root, 'Annotations')
-        anns_fn = os.listdir(ann_dir)
+        ann_fns = os.listdir(ann_dir)
 
         anns_ = []
-        for ann_fn in anns_fn:
+        for i, ann_fn in enumerate(ann_fns):
+            # 디버깅할 때 시간 단축 용
+            # if i >= 100:
+            #     break
             ann_path = os.path.join(ann_dir, ann_fn)
             ann = open(ann_path, 'r')
             tree = Et.parse(ann)
