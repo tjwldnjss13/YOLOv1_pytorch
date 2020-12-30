@@ -31,13 +31,16 @@ def detect_bbox(image, model):
         for j in range(7):
             for b in range(2):
                 c = output[i, j, 5 * b + 4]
-                print(c)
 
                 if c > 0:
                     x = (i + output[i, j, 5 * b]) * w_img_grid
                     y = (j + output[i, j, 5 * b + 1]) * h_img_grid
-                    w = output[i, j, 5 * b + 2] * w_img
-                    h = output[i, j, 5 * b + 3] * h_img
+                    w = output[i, j, 5 * b + 2]
+                    h = output[i, j, 5 * b + 3]
+                    print(w.item(), h.item())
+                    # w = output[i, j, 5 * b + 2] * w_img
+                    # h = output[i, j, 5 * b + 3] * h_img
+                    # print(x.item(), y.item(), w.item(), h.item(), w_img, h_img)
 
                     x_min = int(x - .5 * w)
                     y_min = int(y - .5 * h)
@@ -52,5 +55,12 @@ def detect_bbox(image, model):
 
 if __name__ == '__main__':
     img_pth = 'samples/dogs.jpg'
+    model_pth = 'trained models/base model/yolov1_1e-07lr_100epoch_7.55606loss_34.50195acc.pth'
+
+    img = Image.open(img_pth)
+    model = torch.load(model_pth)
+    model.train_ = False
+
+    detect_bbox(img, model)
 
 

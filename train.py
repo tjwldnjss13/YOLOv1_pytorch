@@ -23,7 +23,7 @@ device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 
 if __name__ == '__main__':
-    lr = 1e-6
+    lr = 1e-7
     batch_size = 8
     num_epoch = 100
     n_class = 21

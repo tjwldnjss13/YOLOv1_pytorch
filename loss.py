@@ -1,5 +1,7 @@
 import torch
 
+from yolov1_util import calculate_iou
+
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 
@@ -12,18 +14,47 @@ def yolo_pretrain_custom_loss(predict, target):
 
 
 def yolo_custom_loss(predict, target, n_bbox_predict, lambda_coord=5, lambda_noobj=.5):
-    coord_losses = torch.zeros(target.shape[1:3]).to(device)
+    coord_losses = torch.zeros(7, 7, 2).to(device)
     obj_losses = torch.zeros(target.shape[1:3]).to(device)
     class_losses = torch.zeros(target.shape[1:3]).to(device)
+
+    coord_loss = torch.zeros(1).to(device)
 
     n_batch = predict.shape[0]
     for b in range(n_batch):
         is_obj_global = torch.zeros(target.shape[1:3]).to(device)
+
+        coord_losses_mask = torch.zeros(7, 7, 2).to(device)
+
+        # Find responsible box
         for i in range(n_bbox_predict):
-            coord_losses += torch.square(predict[b, :, :, 5 * i] - target[b, :, :, 5 * i])
-            coord_losses += torch.square(predict[b, :, :, 5 * i + 1] - target[b, :, :, 5 * i + 1])
-            coord_losses += torch.square(torch.sqrt(predict[b, :, :, 5 * i + 2]) - torch.sqrt(target[b, :, :, 5 * i + 2]))
-            coord_losses += torch.square(torch.sqrt(predict[b, :, :, 5 * i + 3]) - torch.sqrt(target[b, :, :, 5 * i + 3]))
+            coord_losses_mask[:, :, i] = target[b, :, :, 5 * i + 4]
+
+        for s1 in range(7):
+            for s2 in range(7):
+                if coord_losses_mask[s1, s2, 0] == 1:
+                    box1 = predict[b, s1, s2, :4]
+                    box2 = predict[b, s1, s2, 5:9]
+                    gt = target[b, s1, s2, :4]
+
+                    iou1 = calculate_iou(box1, gt)
+                    iou2 = calculate_iou(box2, gt)
+
+                    if iou1 > iou2:
+                        coord_losses_mask[s1, s2, 0] = 0
+                    else:
+                        coord_losses_mask[s1, s2, 1] = 0
+
+        # Calculate coordinates loss
+        for i in range(n_bbox_predict):
+            coord_losses = torch.square(predict[b, :, :, 5 * i] - target[b, :, :, 5 * i]) \
+                            + torch.square(predict[b, :, :, 5 * i + 1] - target[b, :, :, 5 * i + 1])
+            coord_losses *= coord_losses_mask[:, :, i]
+
+            # coord_losses += torch.square(predict[b, :, :, 5 * i] - target[b, :, :, 5 * i])
+            # coord_losses += torch.square(predict[b, :, :, 5 * i + 1] - target[b, :, :, 5 * i + 1])
+            # coord_losses += torch.square(torch.sqrt(predict[b, :, :, 5 * i + 2]) - torch.sqrt(target[b, :, :, 5 * i + 2]))
+            # coord_losses += torch.square(torch.sqrt(predict[b, :, :, 5 * i + 3]) - torch.sqrt(target[b, :, :, 5 * i + 3]))
 
             is_obj = target[b, :, :, 5 * i + 4]
             if b == 0:

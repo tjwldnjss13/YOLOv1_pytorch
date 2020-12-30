@@ -76,7 +76,7 @@ class YOLOv1(nn.Module):
         #     x = self.bn_train_detect(x)
         #     x = self.lrelu(x)
 
-        x = self.conv1_train(x) if self.train else self.conv1_detect(x)
+        x = self.conv1_train(x) if self.train_ else self.conv1_detect(x)
         x = self.maxpool(x)
 
         x = self.conv2(x)
@@ -158,7 +158,7 @@ class YOLOv1(nn.Module):
 
 if __name__ == '__main__':
     model = YOLOv1(21, 2).cuda()
-    model.train = False
+    model.train_ = False
     from torchsummary import summary
     summary(model, (3, 448, 448))
 

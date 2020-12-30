@@ -4,6 +4,42 @@ import numpy as np
 from utils import make_batch
 
 
+def calculate_iou(box1, box2):
+    # Inputs:
+    #    box1, box2: [cx, cy, w, h] tensor
+
+    y1_box1 = box1[1] - .5 * box1[3]
+    x1_box1 = box1[0] - .5 * box1[2]
+    y2_box1 = y1_box1 + box1[3]
+    x2_box1 = x1_box1 + box1[2]
+
+    y1_box2 = box2[1] - .5 * box2[3]
+    x1_box2 = box2[0] - .5 * box2[2]
+    y2_box2 = y1_box2 + box2[3]
+    x2_box2 = x1_box2 + box2[2]
+
+    y1_inter = torch.max(y1_box1, y1_box2)
+    x1_inter = torch.max(x1_box1, x1_box2)
+    y2_inter = torch.min(y2_box1, y2_box2)
+    x2_inter = torch.min(x2_box1, x2_box2)
+
+    area_inter = (y2_inter - y1_inter) * (x2_inter - x1_inter)
+
+    area_box1 = box1[2] * box1[3]
+    area_box2 = box2[2] * box2[3]
+    area_union = area_box1 + area_box2 - area_inter
+
+    iou = area_inter / area_union
+
+    return iou
+
+
+a = torch.Tensor([2.5, 2.5, 5, 5])
+b = torch.Tensor([4.5, 4.5, 5, 5])
+iou = calculate_iou(a, b)
+print(iou)
+
+
 def generate_target_batch(annotation, n_bbox_predict, n_class, in_size, out_size):
     n_ann = len(annotation)
 

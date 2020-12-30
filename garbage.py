@@ -1,6 +1,5 @@
 import torch
 
-a = [1, 2]
-b = [3, 4]
-a += b
-print(a)
+a = torch.Tensor([3, 1])
+b = torch.Tensor([2, 200])
+print(torch.max(a, b))
