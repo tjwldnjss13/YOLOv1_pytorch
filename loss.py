@@ -24,15 +24,17 @@ def yolo_custom_loss(predict, target, n_bbox_predict, lambda_coord=5, lambda_noo
     for b in range(n_batch):
         is_obj_global = torch.zeros(target.shape[1:3]).to(device)
 
-        coord_losses_mask = torch.zeros(7, 7, 2).to(device)
+        obj_responsible_mask = torch.zeros(7, 7, 2).to(device)
+        noobj_responsible_mask = torch.zeros(7, 7, 2).to(device)
 
         # Find responsible box
         for i in range(n_bbox_predict):
-            coord_losses_mask[:, :, i] = target[b, :, :, 5 * i + 4]
+            obj_responsible_mask[:, :, i] = target[b, :, :, 5 * i + 4]
+            noobj_responsible_mask[:, :, i] = target[b, :, :, 5 * i + 4]
 
         for s1 in range(7):
             for s2 in range(7):
-                if coord_losses_mask[s1, s2, 0] == 1:
+                if obj_responsible_mask[s1, s2, 0] == 1:
                     box1 = predict[b, s1, s2, :4]
                     box2 = predict[b, s1, s2, 5:9]
                     gt = target[b, s1, s2, :4]
@@ -41,15 +43,15 @@ def yolo_custom_loss(predict, target, n_bbox_predict, lambda_coord=5, lambda_noo
                     iou2 = calculate_iou(box2, gt)
 
                     if iou1 > iou2:
-                        coord_losses_mask[s1, s2, 0] = 0
+                        obj_responsible_mask[s1, s2, 0] = 0
                     else:
-                        coord_losses_mask[s1, s2, 1] = 0
+                        obj_responsible_mask[s1, s2, 1] = 0
 
         # Calculate coordinates loss
         for i in range(n_bbox_predict):
             coord_losses = torch.square(predict[b, :, :, 5 * i] - target[b, :, :, 5 * i]) \
                             + torch.square(predict[b, :, :, 5 * i + 1] - target[b, :, :, 5 * i + 1])
-            coord_losses *= coord_losses_mask[:, :, i]
+            coord_losses *= obj_responsible_mask[:, :, i]
 
             # coord_losses += torch.square(predict[b, :, :, 5 * i] - target[b, :, :, 5 * i])
             # coord_losses += torch.square(predict[b, :, :, 5 * i + 1] - target[b, :, :, 5 * i + 1])
@@ -64,6 +66,8 @@ def yolo_custom_loss(predict, target, n_bbox_predict, lambda_coord=5, lambda_noo
 
         if b == 0:
             is_obj_global /= n_batch
+
+        coord_loss += coord_losses.sum()
 
         class_losses_temp = torch.square(predict[b, :, :, 5 * n_bbox_predict:] - target[b, :, :, 5 * n_bbox_predict:])
         class_losses_temp = class_losses_temp.sum(dim=2)
