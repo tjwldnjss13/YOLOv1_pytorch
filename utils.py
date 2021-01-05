@@ -163,8 +163,8 @@ def time_calculator(sec):
         return 0, 0, sec
     if sec < 3600:
         M = sec // 60
-        S = sec % M
-        return 0, M, S
+        S = sec % (M * 60)
+        return 0, int(M), S
     H = sec // 3600
     sec = sec % 3600
     M = sec // 60

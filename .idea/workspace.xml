@@ -21,7 +21,11 @@
   <component name="ChangeListManager">
     <list default="true" id="72bd9e0b-9676-449a-89fc-d0961712bc5b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/garbage.py" beforeDir="false" afterPath="$PROJECT_DIR$/garbage.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/loss.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yolov1_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/yolov1_util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +65,7 @@
       <recent name="D:\Python\NN\YOLOv1_pytorch\dataset" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.yolov1_util">
+  <component name="RunManager" selected="Python.train">
     <configuration name="garbage" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="YOLOv1_pytorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -198,11 +202,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.train" />
+        <item itemvalue="Python.garbage" />
         <item itemvalue="Python.yolov1_util" />
         <item itemvalue="Python.pytorch_utils" />
-        <item itemvalue="Python.garbage" />
         <item itemvalue="Python.test" />
-        <item itemvalue="Python.train" />
       </list>
     </recent_temporary>
   </component>
@@ -266,22 +270,22 @@
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="1060" y="455" key="FileChooserDialogImpl/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1609314488629" />
-    <state width="2539" height="568" key="GridCell.Tab.0.bottom" timestamp="1609316116052">
+    <state width="2539" height="594" key="GridCell.Tab.0.bottom" timestamp="1609840518877">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state width="2539" height="568" key="GridCell.Tab.0.bottom/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1609316116052" />
-    <state width="2539" height="568" key="GridCell.Tab.0.center" timestamp="1609316116052">
+    <state width="2539" height="594" key="GridCell.Tab.0.bottom/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1609840518877" />
+    <state width="2539" height="594" key="GridCell.Tab.0.center" timestamp="1609840518877">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state width="2539" height="568" key="GridCell.Tab.0.center/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1609316116052" />
-    <state width="2539" height="568" key="GridCell.Tab.0.left" timestamp="1609316116051">
+    <state width="2539" height="594" key="GridCell.Tab.0.center/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1609840518877" />
+    <state width="2539" height="594" key="GridCell.Tab.0.left" timestamp="1609840518877">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state width="2539" height="568" key="GridCell.Tab.0.left/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1609316116051" />
-    <state width="2539" height="568" key="GridCell.Tab.0.right" timestamp="1609316116052">
+    <state width="2539" height="594" key="GridCell.Tab.0.left/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1609840518877" />
+    <state width="2539" height="594" key="GridCell.Tab.0.right" timestamp="1609840518877">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state width="2539" height="568" key="GridCell.Tab.0.right/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1609316116052" />
+    <state width="2539" height="594" key="GridCell.Tab.0.right/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1609840518877" />
     <state x="781" y="344" key="SettingsEditor" timestamp="1604544433388">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>

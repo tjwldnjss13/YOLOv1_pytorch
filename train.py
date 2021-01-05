@@ -23,9 +23,9 @@ device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 
 if __name__ == '__main__':
-    lr = 1e-7
+    lr = .001
     batch_size = 8
-    num_epoch = 100
+    num_epoch = 50
     n_class = 21
     n_bbox_predict = 2
     model_save_term = 5
@@ -64,6 +64,7 @@ if __name__ == '__main__':
     train_accs = []
     val_losses = []
     val_accs = []
+
     t_start = time.time()
     for e in range(num_epoch):
         n_images = 0
@@ -71,9 +72,9 @@ if __name__ == '__main__':
         train_loss = 0
         train_acc = 0
         sum_t_batch = 0
-        for i, (images, anns) in enumerate(train_data_loader):
-            t_batch_start = time.time()
 
+        t_epoch_start = time.time()
+        for i, (images, anns) in enumerate(train_data_loader):
             mini_batch = len(images)
             n_images += mini_batch
             n_batch += 1
@@ -97,32 +98,29 @@ if __name__ == '__main__':
 
             t_batch_end = time.time()
 
-            t_batch = t_batch_end - t_batch_start
-            sum_t_batch += t_batch
+            # t_batch = t_batch_end - t_batch_start
+            H, M, S = time_calculator(t_batch_end - t_start)
+            # sum_t_batch += t_batch
 
             # print('<loss> {} <cls_acc> {}'.format(loss.item(), acc.item() / mini_batch))
-            print('<loss> {}   {:.2f}S'.format(loss.item(), t_batch))
+            print('<loss> {} <loss_avg> {} <time> {:02d}:{:02d}:{:02d}'.format(loss.item(), train_loss / n_batch, H, M, int(S)))
 
-            if is_debugging:
-                break
-
-        if is_debugging:
-            break
-
-        H, M, S = time_calculator(sum_t_batch)
+        t_epoch_end = time.time()
+        H, M, S = time_calculator(t_epoch_end - t_epoch_start)
 
         train_losses.append(train_loss / n_batch)
         train_accs.append(train_acc / n_train_data)
 
         # print('    <train_loss> {} <train_cls_acc> {} '.format(train_losses[-1], train_accs[-1]), end='')
-        print('    <train_loss> {}   {}M {:.2f}S '.format(train_losses[-1], M, S), end='')
+        print('    <train_loss> {} <time> {:02d}:{:02d}:{:02d} '.format(train_losses[-1], H, M, int(S)), end='')
 
         val_loss = 0
         val_acc = 0
         n_images = 0
         sum_t_val = 0
+
+        t_val_start = time.time()
         for i, (images, anns) in enumerate(val_data_loader):
-            t_batch_start = time.time()
 
             mini_batch = len(images)
             n_batch += 1
@@ -138,16 +136,16 @@ if __name__ == '__main__':
             val_loss += loss.item()
             val_acc += acc.item()
 
-            t_batch_end = time.time()
-            sum_t_val += t_batch_end - t_batch_start
+            # sum_t_val += t_batch_end - t_batch_start
 
         val_losses.append(val_loss / n_batch)
         val_accs.append(val_acc / n_val_data)
 
-        H, M, S = time_calculator(sum_t_val)
+        t_val_end = time.time()
+        H, M, S = time_calculator(t_val_end - t_val_start)
 
         # print('<val_loss> {} <val_cls_acc> {}'.format(val_losses[-1], val_accs[-1]))
-        print('<val_loss> {}   {}M {}S'.format(val_losses[-1], M, S))
+        print('<val_loss> {} <time> {:02d}:{:02d}:{:02d}'.format(val_losses[-1], H, M, int(S)))
 
         if (e + 1) % model_save_term == 0:
             PATH = 'trained models/yolov1_{}lr_{}epoch_{:.5f}loss_{:.5f}acc.pth'.format(lr, e + 1, val_losses[-1], val_accs[-1])
@@ -157,7 +155,7 @@ if __name__ == '__main__':
 
     if not is_debugging:
         H, M, S = time_calculator(t_end - t_start)
-        print('Train time : {}H {}M {:.2f}S'.format(H, M, S))
+        print('Train time : {:02d}:{:02d}:{:02d}'.format(H, M, int(S)))
 
         plt.figure(1)
         plt.title('Train/Validation Loss')
@@ -170,6 +168,6 @@ if __name__ == '__main__':
         # plt.plot([i for i in range(num_epoch)], train_accs, 'r-', label='train')
         # plt.plot([i for i in range(num_epoch)], val_accs, 'b-', label='val')
         # plt.legend()
-        # plt.show()
+        plt.show()
 
 
