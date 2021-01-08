@@ -11,7 +11,8 @@ def make_batch(datas):
     return data_batch
 
 
-def make_annotation_batch(anns, ann_category):
+def make_pretrain_annotation_batch(anns, ann_category):
+    print(anns[0][ann_category])
     ann_batch = anns[0][ann_category].unsqueeze(0)
     for i in range(1, len(anns)):
         temp = anns[i][ann_category].unsqueeze(0)

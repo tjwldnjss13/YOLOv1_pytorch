@@ -23,10 +23,12 @@ device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 
 if __name__ == '__main__':
-    lr = .001
+    lr = .00001
     batch_size = 8
     num_epoch = 50
     n_class = 21
+    momentum = .9
+    weight_decay = .001
     n_bbox_predict = 2
     model_save_term = 5
 
@@ -51,13 +53,13 @@ if __name__ == '__main__':
     dset_train = VOCDataset(root, img_size=(224, 224), is_validation=False, transforms=transforms, is_categorical=False)
     dset_val = VOCDataset(root, img_size=(224, 224), is_validation=True, transforms=transforms, is_categorical=False)
 
-    train_data_loader = DataLoader(dset_train, batch_size, shuffle=False, collate_fn=collate_fn)
-    val_data_loader = DataLoader(dset_val, batch_size, shuffle=False, collate_fn=collate_fn)
+    train_data_loader = DataLoader(dset_train, batch_size, shuffle=True, collate_fn=collate_fn)
+    val_data_loader = DataLoader(dset_val, batch_size, shuffle=True, collate_fn=collate_fn)
 
     n_train_data = len(dset_train)
     n_val_data = len(dset_val)
 
-    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=.9, weight_decay=.0005)
+    optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
     loss_func = yolo_custom_loss
 
     train_losses = []
@@ -89,7 +91,7 @@ if __name__ == '__main__':
             optimizer.zero_grad()
             loss = loss_func(output, y_, n_bbox_predict, 5, .5)
             # Classification accuracy로 수정
-            acc = (output.argmax(dim=1) == y_.argmax(dim=1)).sum()
+            # acc = (output.argmax(dim=1) == y_.argmax(dim=1)).sum()
             loss.backward()
             optimizer.step()
 
@@ -131,15 +133,15 @@ if __name__ == '__main__':
             output = model(x_)
 
             loss = loss_func(output, y_, n_bbox_predict)
-            acc = (output.argmax(dim=1) == y_.argmax(dim=1)).sum()
+            # acc = (output.argmax(dim=1) == y_.argmax(dim=1)).sum()
 
             val_loss += loss.item()
-            val_acc += acc.item()
+            # val_acc += acc.item()
 
             # sum_t_val += t_batch_end - t_batch_start
 
         val_losses.append(val_loss / n_batch)
-        val_accs.append(val_acc / n_val_data)
+        # val_accs.append(val_acc / n_val_data)
 
         t_val_end = time.time()
         H, M, S = time_calculator(t_val_end - t_val_start)

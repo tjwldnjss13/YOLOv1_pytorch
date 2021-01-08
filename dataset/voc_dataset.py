@@ -11,12 +11,10 @@ from xml.etree.ElementTree import Element, ElementTree
 
 
 class VOCDataset(data.Dataset):
-    def __init__(self, root, img_size, segmentation=False, is_validation=False, valid_split=.3, shuffle=False, transforms=None, is_categorical=True):
+    def __init__(self, root, img_size, segmentation=False, shuffle=False, transforms=None, is_categorical=True):
         self.root = root
         self.img_size = img_size
         self.segmentation = segmentation
-        self.is_validation = is_validation
-        self.valid_split = valid_split
         self.transforms = transforms
         self.is_categorical = is_categorical
         self.class_dict = {'background': 0, 'aeroplane': 1, 'bicycle': 2, 'bird': 3, 'boat': 4, 'bottle': 5, 'bus': 6, 'car': 7, 'cat': 8,
@@ -78,6 +76,7 @@ class VOCDataset(data.Dataset):
                 class_ = self.class_dict[name] if name in self.class_dict.keys() else 0
                 if self.is_categorical:
                     class_ = self.to_categorical(class_, 21)
+                    class_ = torch.as_tensor(class_)
                 bbox = [ymin, xmin, ymax, xmax]
 
                 classes.append(class_)
@@ -101,7 +100,7 @@ class VOCDataset(data.Dataset):
         ann_dir = os.path.join(self.root, 'Annotations')
         ann_fns = os.listdir(ann_dir)
 
-        anns_ = []
+        anns = []
         for i, ann_fn in enumerate(ann_fns):
             # 디버깅할 때 시간 단축 용
             # if i >= 100:
@@ -110,13 +109,8 @@ class VOCDataset(data.Dataset):
             ann = open(ann_path, 'r')
             tree = Et.parse(ann)
             root_ = tree.getroot()
-            anns_.append(root_)
+            anns.append(root_)
             ann.close()
-
-        if self.is_validation:
-            anns = anns_[int(len(anns_) * (1 - self.valid_split)):]
-        else:
-            anns = anns_[:int(len(anns_) * (1 - self.valid_split))]
 
         print('Annotations loaded!')
 
@@ -141,7 +135,7 @@ class VOCDataset(data.Dataset):
     @staticmethod
     def to_categorical(label, n_class):
         label_ = [0 for _ in range(n_class)]
-        label_[label - 1] = 1
+        label_[label] = 1
 
         return label_
 

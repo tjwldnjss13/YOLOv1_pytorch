@@ -63,6 +63,7 @@ class YOLOv1(nn.Module):
         self.fc2_pretrain = nn.Linear(512, n_class)
         self.fc1 = nn.Linear(7 * 7 * 1024, 4096)
         self.fc2 = nn.Linear(4096, 7 * 7 * (5 * self.n_bbox_predict + self.n_class))
+        self.dropout = nn.Dropout(.5)
 
     def forward(self, x):
         # if self.train:
@@ -114,6 +115,7 @@ class YOLOv1(nn.Module):
 
             x = x.contiguous().view(x.size(0), -1)
             x = self.fc1(x)
+            x = self.dropout(x)
             x = self.lrelu(x)
 
             x = self.fc2(x)
@@ -131,6 +133,10 @@ class YOLOv1(nn.Module):
             # cs = torch.cat([x[:, :, :, 4].unsqueeze(3), x[:, :, :, 9].unsqueeze(3)], dim=3)
 
             bbox_reg = x[:, :, :, :10]
+            B1, C1, B2, C2 = bbox_reg[:, :, :, :4], bbox_reg[:, :, :, 4], bbox_reg[:, :, :, 5:9], bbox_reg[:, :, :, 9]
+            B1, B2 = self.sigmoid(B1), self.sigmoid(B2)
+            bbox_reg = torch.cat([B1, C1, B2, C2], dim=3)
+
             bbox_reg = self.sigmoid(bbox_reg)
 
             cls_score = x[:, :, :, 10:]
@@ -158,9 +164,10 @@ class YOLOv1(nn.Module):
 
 if __name__ == '__main__':
     model = YOLOv1(21, 2).cuda()
-    model.train_ = False
+    model.train_ = True
+    model.pretrain = True
     from torchsummary import summary
-    summary(model, (3, 448, 448))
+    summary(model, (3, 224, 224))
 
     # from torchsummary import summary
     # dummy = torch.Tensor(2, 3, 448, 448).cuda()
