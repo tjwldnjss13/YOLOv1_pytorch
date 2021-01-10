@@ -20,15 +20,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="72bd9e0b-9676-449a-89fc-d0961712bc5b" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/YOLOv1_pytorch.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/YOLOv1_pytorch.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/voc_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset/voc_dataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/garbage.py" beforeDir="false" afterPath="$PROJECT_DIR$/garbage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pretrain.py" beforeDir="false" afterPath="$PROJECT_DIR$/pretrain.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov1_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/yolov1_util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,8 +46,10 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../U-Net-pytorch" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -69,7 +65,7 @@
       <recent name="D:\Python\NN\YOLOv1" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.pretrain">
+  <component name="RunManager" selected="Python.garbage">
     <configuration name="garbage" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="YOLOv1_pytorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -206,14 +202,15 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.pretrain" />
         <item itemvalue="Python.garbage" />
+        <item itemvalue="Python.pretrain" />
         <item itemvalue="Python.train" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.yolov1_util" />
       </list>
     </recent_temporary>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -252,59 +249,5 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="734" y="355" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1604550323158">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state x="734" y="355" key="#com.intellij.execution.impl.EditConfigurationsDialog/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1604550323158" />
-    <state x="910" y="500" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1610091749450">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state x="910" y="500" key="#com.intellij.fileTypes.FileTypeChooser/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1610091749450" />
-    <state x="1010" y="446" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1606293279064">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state x="1010" y="446" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1606293279064" />
-    <state x="986" y="291" key="#garbage" timestamp="1604544349488">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state x="986" y="291" key="#garbage/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1604544349488" />
-    <state x="986" y="291" key="#model" timestamp="1604550283429">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state x="986" y="291" key="#model/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1604550283429" />
-    <state x="1060" y="455" key="FileChooserDialogImpl" timestamp="1609314488629">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state x="1060" y="455" key="FileChooserDialogImpl/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1609314488629" />
-    <state width="2539" height="668" key="GridCell.Tab.0.bottom" timestamp="1610091739076">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state width="2539" height="668" key="GridCell.Tab.0.bottom/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1610091739076" />
-    <state width="2539" height="668" key="GridCell.Tab.0.center" timestamp="1610091739076">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state width="2539" height="668" key="GridCell.Tab.0.center/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1610091739076" />
-    <state width="2539" height="668" key="GridCell.Tab.0.left" timestamp="1610091739076">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state width="2539" height="668" key="GridCell.Tab.0.left/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1610091739076" />
-    <state width="2539" height="668" key="GridCell.Tab.0.right" timestamp="1610091739076">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state width="2539" height="668" key="GridCell.Tab.0.right/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1610091739076" />
-    <state x="781" y="344" key="SettingsEditor" timestamp="1604544433388">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state x="781" y="344" key="SettingsEditor/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1604544433388" />
-    <state width="1288" height="708" key="XDebugger.FullValuePopup" timestamp="1609142064737">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state width="1288" height="708" key="XDebugger.FullValuePopup/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1609142064737" />
-    <state x="943" y="315" width="672" height="678" key="search.everywhere.popup" timestamp="1610083272873">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state x="943" y="315" width="672" height="678" key="search.everywhere.popup/2560.-480.1080.1880/0.0.2560.1400@0.0.2560.1400" timestamp="1610083272873" />
   </component>
 </project>
